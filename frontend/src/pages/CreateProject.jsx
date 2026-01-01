@@ -22,7 +22,7 @@ export default function CreateProject() {
       const userData = JSON.parse(localStorage.getItem("user"));
 
       const res = await API.post(
-        "/projects",
+        "/projects/create",
         formData,
         {
           headers: {

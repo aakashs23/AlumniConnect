@@ -5,7 +5,7 @@ import protect from "../middleware/auth.js";
 const router = express.Router();
 
 // Student creates a project
-router.post("/", protect, async (req, res) => {
+router.post("/create", protect, async (req, res) => {
   try {
     const { title, problem, solution, fundsRequired } = req.body;
 
