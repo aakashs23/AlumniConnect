@@ -19,8 +19,15 @@ router.post("/create", protect, async (req, res) => {
 
     res.status(201).json(project);
   } catch (error) {
-    res.status(500).json({ message: "Failed to create project", error: error.message });
-  }
+  console.error("CREATE PROJECT ERROR:", error);
+
+  res.status(500).json({
+    message: "Failed to create project",
+    error: error.message,
+    stack: error.stack
+  });
+}
+
 });
 
 // Anyone can view all projects
