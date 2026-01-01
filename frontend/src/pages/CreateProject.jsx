@@ -4,8 +4,9 @@ import API from "../services/api";
 export default function CreateProject() {
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
-    techStack: "",
+    problem: "",
+    solution: "",
+    fundsRequired: "",
   });
 
   const handleChange = (e) => {
@@ -21,9 +22,14 @@ export default function CreateProject() {
     try {
       const userData = JSON.parse(localStorage.getItem("user"));
 
-      const res = await API.post(
+      await API.post(
         "/projects/create",
-        formData,
+        {
+          title: formData.title,
+          problem: formData.problem,
+          solution: formData.solution,
+          fundsRequired: Number(formData.fundsRequired),
+        },
         {
           headers: {
             Authorization: `Bearer ${userData.token}`,
@@ -31,10 +37,9 @@ export default function CreateProject() {
         }
       );
 
-      alert("Project created successfully");
-      console.log(res.data);
-    } catch (err) {
-      console.error(err);
+      alert("Project created successfully 🎉");
+    } catch (error) {
+      console.error(error);
       alert("Project creation failed");
     }
   };
@@ -54,18 +59,28 @@ export default function CreateProject() {
         <br /><br />
 
         <textarea
-          name="description"
-          placeholder="Project Description"
-          value={formData.description}
+          name="problem"
+          placeholder="Problem Statement"
+          value={formData.problem}
+          onChange={handleChange}
+          required
+        />
+        <br /><br />
+
+        <textarea
+          name="solution"
+          placeholder="Proposed Solution"
+          value={formData.solution}
           onChange={handleChange}
           required
         />
         <br /><br />
 
         <input
-          name="techStack"
-          placeholder="Tech Stack (React, Node, Mongo)"
-          value={formData.techStack}
+          name="fundsRequired"
+          type="number"
+          placeholder="Funds Required"
+          value={formData.fundsRequired}
           onChange={handleChange}
           required
         />
