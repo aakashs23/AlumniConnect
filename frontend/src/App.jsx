@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import CreateProject from "./pages/CreateProject";
+import Projects from "./pages/Projects";
 
 function App() {
   // check if user is logged in
@@ -19,6 +20,9 @@ function App() {
       {/* Auth routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/create-project" element={<CreateProject />} />
+
+      <Route path="/projects" element={<Projects />} />
+
 
       <Route path="/register" element={<Register />} />
 

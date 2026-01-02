@@ -20,6 +20,7 @@ export default function Dashboard() {
       <button onClick={() => window.location.href = "/projects"}>
         View Projects
       </button>
+      
     </div>
   );
 }
