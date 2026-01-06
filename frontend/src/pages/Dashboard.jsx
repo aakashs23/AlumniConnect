@@ -42,29 +42,35 @@ export default function Dashboard() {
   // ================================
   // TOGGLE INVESTOR MODE (STUDENT)
   // ================================
-  const toggleInvestorMode = async () => {
-    try {
-      const res = await API.patch(
-        "/users/toggle-investor",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        }
-      );
+const toggleInvestorMode = async () => {
+  console.log("✅ TOGGLE BUTTON CLICKED");
 
-      const updatedUser = {
-        ...user,
-        canInvest: res.data.canInvest,
-      };
+  try {
+    const res = await API.patch(
+      "/users/toggle-investor",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      }
+    );
 
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      window.location.reload();
-    } catch (error) {
-      alert(error.response?.data?.message || "Failed to toggle investor mode");
-    }
-  };
+    console.log("✅ RESPONSE:", res.data);
+
+    const updatedUser = {
+      ...user,
+      canInvest: res.data.canInvest,
+    };
+
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    window.location.reload();
+  } catch (error) {
+    console.error("❌ TOGGLE ERROR:", error);
+    alert("Failed to toggle investor mode");
+  }
+};
+
 
   // ================================
   // INVEST HANDLER

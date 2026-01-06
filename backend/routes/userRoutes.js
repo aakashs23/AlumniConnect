@@ -15,23 +15,20 @@ router.patch("/toggle-investor", protect, async (req, res) => {
         .json({ message: "Only students can toggle investor mode" });
     }
 
-    const user = await User.findById(req.user._id);
-
-    user.canInvest = !user.canInvest;
-    await user.save();
+    req.user.canInvest = !req.user.canInvest;
+    await req.user.save();
 
     res.json({
-      message: user.canInvest
+      message: req.user.canInvest
         ? "Investor mode activated"
         : "Investor mode deactivated",
-      canInvest: user.canInvest,
+      canInvest: req.user.canInvest,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to toggle investor mode",
-      error: error.message,
-    });
+    console.error("TOGGLE ERROR:", error.message);
+    res.status(500).json({ message: "Failed to toggle investor mode" });
   }
 });
+
 
 export default router;
