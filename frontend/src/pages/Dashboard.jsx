@@ -46,15 +46,7 @@ const toggleInvestorMode = async () => {
   console.log("✅ TOGGLE BUTTON CLICKED");
 
   try {
-    const res = await API.patch(
-      "/users/toggle-investor",
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-    );
+    const res = await API.patch("/users/toggle-investor");
 
     console.log("✅ RESPONSE:", res.data);
 
