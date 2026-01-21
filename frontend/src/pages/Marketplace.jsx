@@ -18,6 +18,26 @@ export default function Marketplace() {
     load();
   }, []);
 
+  const handleInvest = async (projectId) => {
+    const amount = prompt("Enter investment amount:");
+
+    if (!amount || isNaN(amount) || Number(amount) <= 0) {
+      alert("Invalid amount");
+      return;
+    }
+
+    try {
+      await API.post(`/projects/invest/${projectId}`, {
+        amount: Number(amount),
+      });
+
+      alert("Investment successful!");
+      window.location.reload();
+    } catch (err) {
+      alert(err.response?.data?.message || "Investment failed");
+    }
+  };
+
   return (
     <div style={{ padding: 30 }}>
       <h2>Marketplace</h2>
@@ -41,7 +61,7 @@ export default function Marketplace() {
               border: "1px solid #ccc",
               padding: 20,
               marginBottom: 15,
-              borderRadius: 8
+              borderRadius: 8,
             }}
           >
             <h3>{project.title}</h3>
@@ -67,7 +87,7 @@ export default function Marketplace() {
                     height: 10,
                     borderRadius: 6,
                     marginTop: 5,
-                    overflow: "hidden"
+                    overflow: "hidden",
                   }}
                 >
                   <div
@@ -75,19 +95,16 @@ export default function Marketplace() {
                       height: "100%",
                       width: `${percent}%`,
                       background: percent >= 100 ? "#2ecc71" : "#3498db",
-                      transition: "width 0.3s"
+                      transition: "width 0.3s",
                     }}
                   />
                 </div>
               </div>
             )}
 
-            {/* Invest Button (UI self‑investing gating) */}
+            {/* Invest Button */}
             {canInvest && (
-              <button
-                style={{ marginTop: 15 }}
-                onClick={() => alert("Invest flow coming after Module C")}
-              >
+              <button style={{ marginTop: 15 }} onClick={() => handleInvest(project._id)}>
                 Invest
               </button>
             )}

@@ -53,6 +53,8 @@ function App() {
         }
       />
 
+      <Route path="/portfolio" element={<Portfolio />} />
+
       {/* Fallback */}
       <Route path="*" element={<h2>Page Not Found</h2>} />
     </Routes>

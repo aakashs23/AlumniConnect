@@ -11,7 +11,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   // ================================
-  // FETCH MY PROJECTS (STUDENTS)
+  // FETCH MY PROJECTS (STUDENTS ONLY)
   // ================================
   useEffect(() => {
     const fetchMyProjects = async () => {
@@ -60,7 +60,6 @@ export default function Dashboard() {
       const updatedUser = { ...user, canInvest: res.data.canInvest };
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // after enabling investor mode, redirect to marketplace
       if (res.data.canInvest) {
         navigate("/marketplace");
       } else {
@@ -124,10 +123,21 @@ export default function Dashboard() {
     <div style={{ padding: "40px" }}>
       <h2>Dashboard</h2>
       <p><strong>{user.name}</strong> ({user.role})</p>
+
+      {/* C.5 — Portfolio Button */}
+      {(user.role === "alumni" || user.canInvest) && (
+        <button
+          style={{ marginBottom: "20px", marginRight: "10px" }}
+          onClick={() => navigate("/portfolio")}
+        >
+          View Portfolio
+        </button>
+      )}
+
       <hr />
 
       {/* ================================
-          STUDENT — INVESTOR MODE TOGGLE
+        STUDENT — INVESTOR MODE TOGGLE
       ================================ */}
       {user.role === "student" && (
         <div style={{ marginBottom: "20px" }}>
@@ -141,7 +151,7 @@ export default function Dashboard() {
       )}
 
       {/* ================================
-          ADMIN — PENDING PROJECTS
+        ADMIN — PENDING PROJECTS
       ================================ */}
       {user.role === "admin" && (
         <div>
@@ -165,7 +175,7 @@ export default function Dashboard() {
       )}
 
       {/* ================================
-          STUDENT — MY PROJECTS
+        STUDENT — MY PROJECTS
       ================================ */}
       {user.role === "student" && (
         <>
