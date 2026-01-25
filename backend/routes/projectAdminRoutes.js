@@ -18,4 +18,7 @@ router.patch("/:id/approve", protect, adminOnly, approveProject);
 // REJECT proposal (sends reason & locks project)
 router.patch("/:id/reject", protect, adminOnly, rejectProject);
 
+router.get("/projects", protect, adminOnly, getAdminProjects);
+
+
 export default router;

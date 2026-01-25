@@ -11,9 +11,11 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   // ================================
-  // FETCH MY PROJECTS (STUDENTS ONLY)
+  // FETCH MY PROJECTS (STUDENTS)
   // ================================
   useEffect(() => {
+    if (user.role !== "student") return;
+
     const fetchMyProjects = async () => {
       try {
         const res = await API.get("/projects/mine", {
@@ -28,7 +30,7 @@ export default function Dashboard() {
       }
     };
 
-    if (user.role === "student") fetchMyProjects();
+    fetchMyProjects();
   }, []);
 
   // ================================
@@ -39,7 +41,7 @@ export default function Dashboard() {
 
     const fetchPending = async () => {
       try {
-        const res = await API.get("/admin/projects/pending", {
+        const res = await API.get("/admin/projects", {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         setPending(res.data);
@@ -56,7 +58,10 @@ export default function Dashboard() {
   // ================================
   const toggleInvestorMode = async () => {
     try {
-      const res = await API.patch("/users/toggle-investor");
+      const res = await API.patch("/users/toggle-investor", {}, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+
       const updatedUser = { ...user, canInvest: res.data.canInvest };
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
@@ -65,13 +70,13 @@ export default function Dashboard() {
       } else {
         navigate("/dashboard");
       }
-    } catch (err) {
+    } catch {
       alert("Failed to toggle investor mode");
     }
   };
 
   // ================================
-  // ADMIN APPROVE
+  // ADMIN — APPROVE / REJECT / EXIT
   // ================================
   const approve = async (id) => {
     const valuationApproved = prompt("Enter approved valuation (₹):");
@@ -87,17 +92,13 @@ export default function Dashboard() {
         },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
-
-      alert("Project approved!");
+      alert("Project approved");
       window.location.reload();
-    } catch (err) {
+    } catch {
       alert("Approval failed");
     }
   };
 
-  // ================================
-  // ADMIN REJECT
-  // ================================
   const reject = async (id) => {
     const reason = prompt("Reason for rejection:");
     if (!reason) return;
@@ -110,7 +111,7 @@ export default function Dashboard() {
       );
       alert("Project rejected");
       window.location.reload();
-    } catch (err) {
+    } catch {
       alert("Rejection failed");
     }
   };
@@ -125,7 +126,6 @@ export default function Dashboard() {
         { returnMultiplier: Number(multiplier) },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
-
       alert("Project exited successfully");
       window.location.reload();
     } catch (err) {
@@ -133,19 +133,18 @@ export default function Dashboard() {
     }
   };
 
-  // ======================================================
-  // UI START
-  // ======================================================
-
+  // ================================
+  // UI
+  // ================================
   return (
     <div style={{ padding: "40px" }}>
       <h2>Dashboard</h2>
       <p><strong>{user.name}</strong> ({user.role})</p>
 
-      {/* C.5 — Portfolio Button */}
+      {/* Portfolio Button */}
       {(user.role === "alumni" || user.canInvest) && (
         <button
-          style={{ marginBottom: "20px", marginRight: "10px" }}
+          style={{ marginBottom: 20, marginRight: 10 }}
           onClick={() => navigate("/portfolio")}
         >
           View Portfolio
@@ -154,26 +153,22 @@ export default function Dashboard() {
 
       <hr />
 
-      {/* ================================
-        STUDENT — INVESTOR MODE TOGGLE
-      ================================ */}
+      {/* STUDENT — INVESTOR MODE */}
       {user.role === "student" && (
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: 20 }}>
           <button onClick={toggleInvestorMode}>
             {user.canInvest ? "Deactivate Investor Mode" : "Activate Investor Mode"}
           </button>
-          <p style={{ marginTop: "5px", fontSize: "14px" }}>
+          <p style={{ fontSize: 14 }}>
             Status: <strong>{user.canInvest ? "Investor Mode ON" : "Investor Mode OFF"}</strong>
           </p>
         </div>
       )}
 
-      {/* ================================
-        ADMIN — PENDING PROJECTS
-      ================================ */}
+      {/* ADMIN — PENDING PROJECTS */}
       {user.role === "admin" && (
-        <div>
-          <h3>Pending Projects for Approval</h3>
+        <>
+          <h3>Pending / Funded Projects</h3>
           {pending.length === 0 ? (
             <p>No pending projects</p>
           ) : (
@@ -182,28 +177,27 @@ export default function Dashboard() {
                 <h4>{p.title}</h4>
                 <p><strong>Valuation Proposed:</strong> ₹{p.valuationProposal}</p>
                 <p><strong>Equity Proposed:</strong> {p.equityForSaleProposal}%</p>
-                <p><em>By {p.creator?.name}</em></p>
+                <p><em>By {p.createdBy?.name}</em></p>
+
                 <button onClick={() => approve(p._id)}>Approve</button>
                 <button style={{ marginLeft: 10 }} onClick={() => reject(p._id)}>Reject</button>
+
+                {p.status === "funded" && !p.isExited && (
+                  <button
+                    style={{ marginLeft: 10, background: "#e74c3c", color: "white" }}
+                    onClick={() => exitProject(p._id)}
+                  >
+                    Exit Project
+                  </button>
+                )}
               </div>
             ))
           )}
           <hr />
-        </div>
+        </>
       )}
 
-      {p.status === "funded" && !p.isExited && (
-        <button
-          style={{ marginLeft: 10, background: "#e74c3c", color: "white" }}
-          onClick={() => exitProject(p._id)}
-        >
-          Exit Project
-        </button>
-      )}
-
-      {/* ================================
-        STUDENT — MY PROJECTS
-      ================================ */}
+      {/* STUDENT — MY PROJECTS */}
       {user.role === "student" && (
         <>
           <h3>My Projects</h3>

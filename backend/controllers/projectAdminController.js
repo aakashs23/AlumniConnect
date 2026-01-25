@@ -85,3 +85,17 @@ export const rejectProject = async (req, res) => {
     res.status(500).json({ message: "Failed to reject project" });
   }
 };
+
+export const getAdminProjects = async (req, res) => {
+  try {
+    const projects = await Project.find({
+      status: { $in: ["pending-approval", "open-for-funding", "funded"] }
+    })
+      .populate("createdBy", "name")
+      .sort({ createdAt: -1 });
+
+    res.json(projects);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to load admin projects" });
+  }
+};
