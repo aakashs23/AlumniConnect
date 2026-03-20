@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import API from "../services/api";
+import "./Register.css";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -26,40 +28,65 @@ export default function Register() {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
+    <div className="register-container animate-fade-in">
+      <div className="register-card animate-slide-up">
+        <div className="register-header">
+          <h2>Create an account</h2>
+          <p>Join the next generation of founders and investors.</p>
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="name"
-          placeholder="Name"
-          onChange={handleChange}
-          required
-        />
+        <form className="register-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name">Full Name</label>
+            <input
+              id="name"
+              type="text"
+              name="name"
+              placeholder="Jane Doe"
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          onChange={handleChange}
-          required
-        />
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          onChange={handleChange}
-          required
-        />
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              placeholder="••••••••"
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <select name="role" onChange={handleChange}>
-          <option value="student">Student</option>
-          <option value="alumni">Alumni</option>
-        </select>
+          <div className="form-group">
+            <label htmlFor="role">Role</label>
+            <select id="role" name="role" onChange={handleChange} value={formData.role}>
+              <option value="student">Student</option>
+              <option value="alumni">Alumni</option>
+            </select>
+          </div>
 
-        <button type="submit">Register</button>
-      </form>
+          <button type="submit" className="btn-register hover-card-effect transition-all">Sign Up</button>
+        </form>
+
+        <div className="register-footer">
+          <p>Already have an account? <Link to="/login">Log in</Link></p>
+        </div>
+      </div>
     </div>
   );
 }

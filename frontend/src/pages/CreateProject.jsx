@@ -1,5 +1,6 @@
 import { useState } from "react";
 import API from "../services/api";
+import "./CreateProject.css";
 
 export default function CreateProject() {
   const [title, setTitle] = useState("");
@@ -45,41 +46,90 @@ export default function CreateProject() {
 
   // prevent admins from accessing creation page
   if (user.role === "admin") {
-    return <p>Admins cannot create projects.</p>;
+    return (
+      <div className="error-state animate-fade-in">
+        <p>⚠️ Admins cannot create projects.</p>
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h2>Create Project Proposal</h2>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", width: "400px" }}>
-        
-        <label>Project Title</label>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} />
+    <div className="create-container animate-fade-in">
+      <header className="create-header">
+        <h2 className="create-title">Launch Your Startup</h2>
+        <p className="create-subtitle">Draft your fundraising proposal for alumni investor review.</p>
+      </header>
 
-        <label>Problem</label>
-        <textarea value={problem} onChange={(e) => setProblem(e.target.value)} />
+      <main className="create-content animate-slide-up delay-100">
+        <div className="create-card hover-card-effect">
+          <form className="create-form" onSubmit={handleSubmit}>
 
-        <label>Solution</label>
-        <textarea value={solution} onChange={(e) => setSolution(e.target.value)} />
+            <div className="form-row">
+              <label className="form-label">Project Title</label>
+              <input
+                className="form-input transition-all"
+                placeholder="e.g. Acme AI Solutions"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
 
-        <label>Proposed Valuation (₹)</label>
-        <input
-          type="number"
-          value={valuationProposal}
-          onChange={(e) => setValuationProposal(e.target.value)}
-        />
+            <div className="form-row">
+              <label className="form-label">The Problem</label>
+              <textarea
+                className="form-textarea transition-all"
+                placeholder="Describe the core issue you are solving..."
+                value={problem}
+                onChange={(e) => setProblem(e.target.value)}
+              />
+            </div>
 
-        <label>Equity Offered (%)</label>
-        <input
-          type="number"
-          value={equityProposal}
-          onChange={(e) => setEquityProposal(e.target.value)}
-        />
+            <div className="form-row">
+              <label className="form-label">The Solution</label>
+              <textarea
+                className="form-textarea transition-all"
+                placeholder="Explain how your product uniquely solves this..."
+                value={solution}
+                onChange={(e) => setSolution(e.target.value)}
+              />
+            </div>
 
-        <button type="submit" style={{ marginTop: "20px" }}>
-          Submit for Approval
-        </button>
-      </form>
+            <div className="form-grid">
+              <div className="form-row">
+                <label className="form-label">Proposed Valuation</label>
+                <div className="currency-wrapper transition-all">
+                  <span className="currency-prefix">₹</span>
+                  <input
+                    className="form-input"
+                    type="number"
+                    placeholder="2500000"
+                    value={valuationProposal}
+                    onChange={(e) => setValuationProposal(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <label className="form-label">Equity Offered</label>
+                <div className="percentage-wrapper transition-all">
+                  <input
+                    className="form-input"
+                    type="number"
+                    placeholder="15"
+                    value={equityProposal}
+                    onChange={(e) => setEquityProposal(e.target.value)}
+                  />
+                  <span className="percentage-suffix">%</span>
+                </div>
+              </div>
+            </div>
+
+            <button className="btn-submit hover-card-effect" type="submit">
+              Submit for Approval
+            </button>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

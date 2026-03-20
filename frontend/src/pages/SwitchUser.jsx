@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./SwitchUser.css";
 
 export default function SwitchUser() {
   const navigate = useNavigate();
@@ -24,51 +25,60 @@ export default function SwitchUser() {
   };
 
   return (
-    <div style={{ padding: 40 }}>
-      <h2>Switch Account</h2>
+    <div className="switch-container animate-fade-in">
+      <div className="switch-card animate-slide-up">
 
-      {users.length === 0 ? (
-        <p>No previously used accounts.</p>
-      ) : (
-        users.map((u) => (
-          <div
-            key={u._id}   // ✅ IMPORTANT
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 10,
-              border: "1px solid #ccc",
-              padding: 10,
-              borderRadius: 6
-            }}
-          >
-            <div>
-              <strong>{u.name}</strong>
-              <div style={{ fontSize: 13 }}>{u.email}</div>
-              <div style={{ fontSize: 12, color: "#777" }}>
-                Role: {u.role}
-              </div>
-            </div>
+        <div className="switch-header">
+          <h2>Switch Account</h2>
+          <p>Choose an account to continue</p>
+        </div>
 
-            <div>
-              <button onClick={handleLogin}>Sign in</button>
-              <button
-                style={{ marginLeft: 10, color: "red" }}
-                onClick={() => removeUser(u._id)}
-              >
-                Remove
-              </button>
-            </div>
+        {users.length === 0 ? (
+          <div className="switch-empty">
+            <p>No previously used accounts.</p>
           </div>
-        ))
-      )}
+        ) : (
+          <div className="users-list">
+            {users.map((u, index) => (
+              <div
+                key={u._id}
+                className="user-account-card hover-card-effect"
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                <div className="user-info-section">
+                  <div className="user-avatar-circle">
+                    {u.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                  <div className="user-details">
+                    <strong>{u.name}</strong>
+                    <span className="user-email">{u.email}</span>
+                    <span className="user-role-tag">{u.role}</span>
+                  </div>
+                </div>
 
-      <hr style={{ margin: "20px 0" }} />
+                <div className="user-actions">
+                  <button className="btn-sign-in" onClick={handleLogin}>
+                    Sign in
+                  </button>
+                  <button
+                    className="btn-remove"
+                    onClick={() => removeUser(u._id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
-      <button onClick={handleLogin}>
-        Sign in with another account
-      </button>
+        <hr className="switch-divider" />
+
+        <button className="btn-other-account hover-card-effect" onClick={handleLogin}>
+          Sign in with another account
+        </button>
+
+      </div>
     </div>
   );
 }

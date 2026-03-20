@@ -4,13 +4,16 @@ import {
   PieChart, Pie, Cell,
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend
 } from "recharts";
+import "./Portfolio.css";
 
 export default function Portfolio() {
   const [projects, setProjects] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     const load = async () => {
+      setIsLoading(true);
       try {
         const res = await API.get("/projects/portfolio", {
           headers: {
@@ -21,6 +24,8 @@ export default function Portfolio() {
       } catch (err) {
         console.error(err);
         alert("Failed to load portfolio");
+      } finally {
+        setIsLoading(false);
       }
     };
     load();
@@ -63,124 +68,166 @@ export default function Portfolio() {
     })
     .filter(Boolean);
 
-  const colors = ["#007bff", "#28a745", "#ffc107", "#ff5733", "#6f42c1", "#20c997"];
+  const colors = ["#2563eb", "#10b981", "#f59e0b", "#f43f5e", "#8b5cf6", "#14b8a6"];
+
+  const LoadingSkeleton = () => (
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }}>
+        {[...Array(3)].map((_, i) => <div key={i} className="skeleton" style={{ height: '100px' }}></div>)}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+        {[...Array(2)].map((_, i) => <div key={i} className="skeleton" style={{ height: '320px' }}></div>)}
+      </div>
+    </div>
+  );
 
   // ─────────────────────────────────────
   // UI
   // ─────────────────────────────────────
   return (
-    <div style={{ padding: 30 }}>
-      <h2>My Portfolio</h2>
+    <div className="portfolio-container animate-fade-in">
+      {/* Header */}
+      <header className="portfolio-header">
+        <h2 className="portfolio-title">My Portfolio</h2>
+        <p className="portfolio-subtitle">Track your startup investments and generated ROI over time.</p>
+      </header>
 
-      {/* SUMMARY BOX */}
-      {projects.length > 0 && (
-        <div style={{
-          padding: "15px",
-          border: "1px solid #ddd",
-          borderRadius: 8,
-          marginBottom: 20,
-          background: "#fafafa"
-        }}>
-          <h3>Portfolio Summary</h3>
-          <p><strong>Total Invested:</strong> ₹{totalInvested.toLocaleString()}</p>
-          <p><strong>Total Equity:</strong> {totalEquity.toFixed(2)}%</p>
-          <p><strong>Projects Owned:</strong> {totalProjects}</p>
-        </div>
-      )}
-
-      {/* C.7 — PIE CHART */}
-      {chartEquityData.length > 0 && (
-        <div style={{ marginBottom: 40 }}>
-          <h3>Equity Distribution</h3>
-          <PieChart width={350} height={250}>
-            <Pie
-              data={chartEquityData}
-              cx={150}
-              cy={100}
-              outerRadius={80}
-              dataKey="value"
-              label
-            >
-              {chartEquityData.map((_, idx) => (
-                <Cell key={idx} fill={colors[idx % colors.length]} />
-              ))}
-            </Pie>
-            <Legend />
-          </PieChart>
-        </div>
-      )}
-
-      {/* C.7 — BAR CHART */}
-      {chartInvestmentData.length > 0 && (
-        <div style={{ marginBottom: 40 }}>
-          <h3>Investment by Project (₹)</h3>
-          <BarChart width={400} height={250} data={chartInvestmentData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="amount" fill="#4caf50" />
-          </BarChart>
-        </div>
-      )}
-
-      {projects.length === 0 && (
-        <p>You have not invested in any projects yet.</p>
-      )}
-
-      {/* PROJECT LIST */}
-      {projects.map(p => (
-        <div
-          key={p._id}
-          style={{
-            border: "1px solid #ccc",
-            padding: 20,
-            marginBottom: 15,
-            borderRadius: 8
-          }}
-        >
-          <h3>{p.title}</h3>
-          <p><strong>Status:</strong> {p.isExited ? "Exited" : "Active"}</p>
-          <p><strong>Founder:</strong> {p.createdBy?.name}</p>
-
-          <h4 style={{ marginTop: 10 }}>Your Investment</h4>
-
-          {p.investors
-            .filter(i => i.investor._id === user._id)
-            .map(i => (
-              <div key={i._id} style={{ marginBottom: 10 }}>
-                <p>💸 Invested: ₹{i.amount}</p>
-                <p>📊 Equity: {i.equity?.toFixed(2)}%</p>
-
-                {/* NOT EXITED */}
-                {!p.isExited && (
-                  <p style={{ color: "#555" }}>
-                    🔄 Unrealized — waiting for exit
-                  </p>
-                )}
-
-                {/* EXITED */}
-                {p.isExited && (
-                  <>
-                    <p>💰 Payout: ₹{i.payout?.toFixed(2)}</p>
-                    <p
-                      style={{
-                        color: i.roi >= 0 ? "green" : "red",
-                        fontWeight: "bold"
-                      }}
-                    >
-                      ROI: {i.roi >= 0 ? "+" : ""}
-                      {i.roi?.toFixed(2)}%
-                    </p>
-                    <p style={{ fontSize: 12, color: "#777" }}>
-                      📅 Exited: {new Date(p.exitedAt).toLocaleDateString()}
-                    </p>
-                  </>
-                )}
+      <main className="portfolio-content">
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : projects.length === 0 ? (
+          <div className="empty-portfolio animate-slide-up">
+            <p>You have not invested in any projects yet.</p>
+          </div>
+        ) : (
+          <>
+            {/* SUMMARY BOX */}
+            <div className="summary-grid animate-slide-up">
+              <div className="summary-card hover-card-effect">
+                <span className="summary-label">Total Capital Invested</span>
+                <span className="summary-value">₹{totalInvested.toLocaleString()}</span>
               </div>
-            ))}
-        </div>
-      ))}
+              <div className="summary-card hover-card-effect">
+                <span className="summary-label">Aggregated Equity</span>
+                <span className="summary-value">{totalEquity.toFixed(2)}%</span>
+              </div>
+              <div className="summary-card hover-card-effect">
+                <span className="summary-label">Startups Backed</span>
+                <span className="summary-value">{totalProjects}</span>
+              </div>
+            </div>
+
+            {/* CHARTS */}
+            <div className="charts-grid animate-slide-up delay-100">
+              {/* C.7 — PIE CHART */}
+              {chartEquityData.length > 0 && (
+                <div className="chart-card hover-card-effect">
+                  <h3>Equity Distribution</h3>
+                  <PieChart width={350} height={250}>
+                    <Pie
+                      data={chartEquityData}
+                      cx={150}
+                      cy={100}
+                      outerRadius={80}
+                      dataKey="value"
+                      label
+                    >
+                      {chartEquityData.map((_, idx) => (
+                        <Cell key={idx} fill={colors[idx % colors.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </div>
+              )}
+
+              {/* C.7 — BAR CHART */}
+              {chartInvestmentData.length > 0 && (
+                <div className="chart-card hover-card-effect">
+                  <h3>Allocation by Project (₹)</h3>
+                  <BarChart width={380} height={250} data={chartInvestmentData}>
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip cursor={{ fill: '#f3f4f6' }} />
+                    <Bar dataKey="amount" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </div>
+              )}
+            </div>
+
+            {/* PROJECT LIST */}
+            <div className="projects-header animate-slide-up delay-200">
+              <h3 className="section-title">Investment Positions</h3>
+            </div>
+
+            <div className="portfolio-grid animate-slide-up delay-300">
+              {projects.map((p, index) => (
+                <div
+                  key={p._id}
+                  className="investment-card hover-card-effect"
+                  style={{ animationDelay: `${index * 0.05 + 0.3}s` }}
+                >
+                  <div className="inv-header">
+                    <h3 className="inv-title">{p.title}</h3>
+                    <span className={`inv-badge ${p.isExited ? "exited" : "active"}`}>
+                      {p.isExited ? "Exited" : "Active"}
+                    </span>
+                  </div>
+
+                  <div className="inv-founder">
+                    👤 Founder: {p.createdBy?.name}
+                  </div>
+
+                  <div className="inv-details">
+                    <h4>Investment Breakdown</h4>
+                    {p.investors
+                      .filter(i => i.investor._id === user._id)
+                      .map(i => (
+                        <div key={i._id}>
+                          <div className="detail-row">
+                            <span className="detail-text">Committed Capital</span>
+                            <span className="detail-val">₹{i.amount.toLocaleString()}</span>
+                          </div>
+                          <div className="detail-row">
+                            <span className="detail-text">Equity Held</span>
+                            <span className="detail-val">{i.equity?.toFixed(2)}%</span>
+                          </div>
+
+                          {/* NOT EXITED */}
+                          {!p.isExited && (
+                            <div className="status-unrealized">
+                              ⏳ Unrealized — Awaiting Exit
+                            </div>
+                          )}
+
+                          {/* EXITED */}
+                          {p.isExited && (
+                            <div className="payout-section">
+                              <div className="detail-row">
+                                <span className="detail-text">Liquidated Payout</span>
+                                <span className="detail-val">₹{i.payout?.toLocaleString()}</span>
+                              </div>
+                              <div className="detail-row" style={{ marginTop: '8px' }}>
+                                <span className="detail-text">Net ROI</span>
+                                <span className={`detail-val ${i.roi >= 0 ? 'roi-positive' : 'roi-negative'}`}>
+                                  {i.roi >= 0 ? "+" : ""}{i.roi?.toFixed(2)}%
+                                </span>
+                              </div>
+                              <span className="exit-date">
+                                🗓 Exited on: {new Date(p.exitedAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </main>
     </div>
   );
 }
